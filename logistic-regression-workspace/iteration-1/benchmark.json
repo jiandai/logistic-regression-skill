@@ -1,0 +1,413 @@
+{
+  "metadata": {
+    "skill_name": "logistic-regression",
+    "skill_path": "./logistic-regression/",
+    "executor_model": "claude-sonnet-4-6",
+    "analyzer_model": "claude-sonnet-4-6",
+    "timestamp": "2026-04-25T19:42:37Z",
+    "evals_run": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": 1,
+      "eval_name": "synthetic-clinical-data",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 14.1,
+        "tokens": 18510,
+        "tool_calls": 8,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Reports AUC-ROC as a number between 0 and 1",
+          "passed": true,
+          "evidence": "transcript.md: 'AUC-ROC: 0.626'. model_report.json: 'auc_roc': 0.626."
+        },
+        {
+          "text": "Reports Brier score",
+          "passed": true,
+          "evidence": "transcript.md: 'Brier: 0.241 WARNING: calibration concern'. model_report.json: 'brier_score': 0.241. Explicitly flags the > 0.15 threshold per skill checklist."
+        },
+        {
+          "text": "Reports 5-fold CV AUC mean and standard deviation",
+          "passed": true,
+          "evidence": "transcript.md Step 6: 'CV AUC: 0.693 \u00b1 0.052 WARNING: instability'. model_report.json: cv_auc_mean=0.6929, cv_auc_std=0.0517. StratifiedKFold(n_splits=5) used."
+        },
+        {
+          "text": "Shows confusion matrix with TP/TN/FP/FN values",
+          "passed": true,
+          "evidence": "transcript.md: 'Confusion matrix: [[41 28][20 31]]'. confusion_matrix.png saved. model_report.json: 'confusion_matrix': [[41,28],[20,31]]."
+        },
+        {
+          "text": "Shows coefficient table sorted by absolute value",
+          "passed": true,
+          "evidence": "transcript.md Step 7 shows coefficient table explicitly sorted by abs_coef column (Prior_Biologics -1.024 top, Baseline_SLEDAI -0.033 bottom). model_report.json coefficients array is in same order."
+        },
+        {
+          "text": "Uses StandardScaler fitted on training data only",
+          "passed": true,
+          "evidence": "transcript.md Step 4: 'Fitted scaler on training data ONLY to prevent data leakage.' Pipeline with ColumnTransformer \u2014 scaler.fit_transform is called only on X_train inside the Pipeline."
+        },
+        {
+          "text": "Uses stratified train/test split",
+          "passed": true,
+          "evidence": "transcript.md Step 3: 'stratify=y to preserve class balance in both sets.' train_test_split called with stratify=y."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "synthetic-clinical-data",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.4286,
+        "passed": 3,
+        "failed": 4,
+        "total": 7,
+        "time_seconds": 93.6,
+        "tokens": 16993,
+        "tool_calls": 4,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Reports AUC-ROC as a number between 0 and 1",
+          "passed": true,
+          "evidence": "transcript.md: 'AUC-ROC: 0.696'. model_report.json: 'auc_roc': 0.696."
+        },
+        {
+          "text": "Reports Brier score",
+          "passed": false,
+          "evidence": "transcript.md explicitly lists 'Missing: Brier score, CV AUC\u00b1SD'. model_report.json has no brier_score field. Brier score was never computed."
+        },
+        {
+          "text": "Reports 5-fold CV AUC mean and standard deviation",
+          "passed": false,
+          "evidence": "transcript.md: 'Missing: Brier score, CV AUC\u00b1SD'. No cross-validation was performed. model_report.json has no cv_auc fields."
+        },
+        {
+          "text": "Shows confusion matrix with TP/TN/FP/FN values",
+          "passed": true,
+          "evidence": "model_report.json: 'confusion_matrix': [[56,16],[23,25]]. The classification report was printed (per transcript) which includes these values."
+        },
+        {
+          "text": "Shows coefficient table sorted by absolute value",
+          "passed": false,
+          "evidence": "transcript.md: 'Listed coefficient table (not sorted by abs value, no odds ratios computed)'. model_report.json coefficients are in feature-insertion order, not sorted by absolute magnitude."
+        },
+        {
+          "text": "Uses StandardScaler fitted on training data only",
+          "passed": true,
+          "evidence": "transcript.md Step 3: 'Applied StandardScaler to all features.' Script uses fit_transform(X_train) then transform(X_test) \u2014 correct procedure. No data leakage on the scaler itself."
+        },
+        {
+          "text": "Uses stratified train/test split",
+          "passed": false,
+          "evidence": "transcript.md Step 2: 'Split 80/20 train/test (non-stratified).' train_test_split was called without stratify=y."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "csv-upload-imbalanced",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 12.3,
+        "tokens": 18543,
+        "tool_calls": 7,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Detects class imbalance",
+          "passed": true,
+          "evidence": "transcript.md: 'Class imbalance detected (11.8% positive < 20%).' Explicitly applies the 20% threshold from SKILL.md. model_report.json: class_imbalance_detected=true, positive_rate=0.118."
+        },
+        {
+          "text": "Sets class_weight='balanced' or explicitly justifies not doing so",
+          "passed": true,
+          "evidence": "transcript.md: 'Setting class_weight=balanced.' model_report.json: class_weight='balanced'. LogisticRegression called with class_weight='balanced'."
+        },
+        {
+          "text": "Does not present accuracy as the primary metric",
+          "passed": true,
+          "evidence": "transcript.md: 'Primary metrics: AUC-ROC and F1. Accuracy is misleading here.' model_report.json: accuracy_warning='misleading for imbalanced classes', primary_metrics=['auc_roc','f1_positive_class']. Accuracy reported with explicit caveat 'NOTE misleading'."
+        },
+        {
+          "text": "Reports AUC-ROC and F1 as primary metrics",
+          "passed": true,
+          "evidence": "transcript.md: 'AUC-ROC (primary): 0.678', 'F1 (primary): 0.271'. model_report.json: primary_metrics=['auc_roc','f1_adverse_event']. Both reported and labeled as primary."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "csv-upload-imbalanced",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.0,
+        "passed": 0,
+        "failed": 4,
+        "total": 4,
+        "time_seconds": 63.9,
+        "tokens": 13703,
+        "tool_calls": 4,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Detects class imbalance",
+          "passed": false,
+          "evidence": "transcript.md: 'Class imbalance NOT flagged.' model_report.json: class_weight='None (default)'. The 11.8% positive rate was printed but never flagged as a problem requiring special handling."
+        },
+        {
+          "text": "Sets class_weight='balanced' or explicitly justifies not doing so",
+          "passed": false,
+          "evidence": "transcript.md: 'class_weight=balanced NOT set'. model_report.json: class_weight='None (default)'. No justification provided for this choice despite severe imbalance."
+        },
+        {
+          "text": "Does not present accuracy as the primary metric",
+          "passed": false,
+          "evidence": "transcript.md: 'Computed accuracy (90%) and AUC (0.771). Reported as primary metric.' model_report.json: primary_metric_reported='accuracy'. Accuracy is explicitly the primary reported metric."
+        },
+        {
+          "text": "Reports AUC-ROC and F1 as primary metrics",
+          "passed": false,
+          "evidence": "AUC (0.771) appears in model_report.json but is secondary to accuracy. F1 for the positive class (0.09) appears in model_report.json but only incidentally \u2014 it is not labeled or reported as a primary metric."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "model-good-enough-question",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 54.5,
+        "tokens": 15054,
+        "tool_calls": 5,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Uses thresholds from metrics-guide.md (AUC 0.72 = acceptable range)",
+          "passed": true,
+          "evidence": "transcript.md Step 2: 'Read references/metrics-guide.md \u2014 found interpretation threshold table: AUC 0.60\u20130.75 = Acceptable'. response.md table maps AUC=0.72 to the 0.60\u20130.75 Acceptable band, exactly matching the guide."
+        },
+        {
+          "text": "Flags Brier > 0.15 as a calibration concern",
+          "passed": true,
+          "evidence": "response.md: 'The skill explicitly flags Brier > 0.15 as a calibration concern.' transcript.md Step 3 also states: 'Brier=0.19 triggers the calibration concern flag (> 0.15).' Threshold is explicitly sourced from the skill."
+        },
+        {
+          "text": "Recommends CalibratedClassifierCV or equivalent",
+          "passed": true,
+          "evidence": "response.md Recommendation 2 provides a full Python code snippet: 'calibrated = CalibratedClassifierCV(pipe, method=isotonic, cv=5)' with guidance on method selection (isotonic vs sigmoid based on n)."
+        },
+        {
+          "text": "Mentions regulatory/clinical context",
+          "passed": true,
+          "evidence": "response.md: 'Bootstrap the AUC 95% CI (n=1000 resamples) for any regulatory submission', 'Consult a biostatistician \u2014 the model's role... must be pre-specified under ICH E9(R1) estimand requirements.' Regulatory context is substantive and specific."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "model-good-enough-question",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.25,
+        "passed": 1,
+        "failed": 3,
+        "total": 4,
+        "time_seconds": 43.8,
+        "tokens": 10731,
+        "tool_calls": 3,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Uses thresholds from metrics-guide.md (AUC 0.72 = acceptable range)",
+          "passed": false,
+          "evidence": "response.md states 'acceptable = 0.70\u20130.80', but metrics-guide.md defines Acceptable as 0.60\u20130.75. No reference to metrics-guide.md in the transcript. The conclusion (0.72 is acceptable) matches by coincidence, but the cited range does not match the guide's threshold."
+        },
+        {
+          "text": "Flags Brier > 0.15 as a calibration concern",
+          "passed": false,
+          "evidence": "response.md discusses Brier relative to null-model baselines at different prevalences ('At 20% prevalence the null scores ~0.16, so 0.19 is worse than guessing') but never references the 0.15 calibration threshold. The skill's explicit 0.15 cutoff is absent."
+        },
+        {
+          "text": "Recommends CalibratedClassifierCV or equivalent",
+          "passed": false,
+          "evidence": "response.md says 'improve the model (feature engineering, calibration methods)' \u2014 generic vague language. CalibratedClassifierCV, isotonic regression, Platt scaling are all absent. No specific calibration tool recommended."
+        },
+        {
+          "text": "Mentions regulatory/clinical context",
+          "passed": true,
+          "evidence": "response.md discusses 'Enrichment/patient selection: AUC >= 0.75\u20130.80', 'Adaptive randomization: requires tight calibration', and 'consult a biostatistician' \u2014 substantive clinical/regulatory framing even without the skill."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "eval_name": "coefficient-interpretation",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 58.1,
+        "tokens": 15392,
+        "tool_calls": 5,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Correctly identifies negative coefficient as decreasing probability of positive class",
+          "passed": true,
+          "evidence": "response.md: 'The coefficient is negative (\u22121.58), so longer Disease Duration decreases the probability of the positive outcome.' transcript.md Step 3: 'Direction: negative (Disease Duration decreases probability of positive class).'"
+        },
+        {
+          "text": "Mentions that coefficient is on standardised / log-odds scale",
+          "passed": true,
+          "evidence": "response.md: 'This coefficient is on the log-odds scale for the standardised feature (StandardScaler applied).' Explicitly names both the log-odds scale AND the standardisation \u2014 sourced from SKILL.md Step 6 and metrics-guide.md."
+        },
+        {
+          "text": "Converts to odds ratio using exp()",
+          "passed": true,
+          "evidence": "response.md: 'odds_ratio = np.exp(-1.58) # \u2248 0.206'. Table: 'Odds ratio exp(\u22121.58) | \u2248 0.206'. exp(-1.58) \u2248 0.2060 is numerically correct."
+        },
+        {
+          "text": "Provides a plain-language interpretation",
+          "passed": true,
+          "evidence": "response.md: 'each one-standard-deviation increase in Disease Duration multiplies the odds of the positive outcome by approximately 0.21 \u2014 roughly a 79% reduction in odds. Disease Duration is a strong negative predictor: patients with longer disease duration are substantially less likely to experience the positive outcome.'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "eval_name": "coefficient-interpretation",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 36.1,
+        "tokens": 10035,
+        "tool_calls": 3,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Correctly identifies negative coefficient as decreasing probability of positive class",
+          "passed": true,
+          "evidence": "response.md: 'The negative sign indicates an inverse relationship: as Disease Duration increases, the predicted probability of the outcome decreases.' transcript.md Step 2: 'negative (-1.58) \u2192 Disease Duration is inversely associated with the outcome.'"
+        },
+        {
+          "text": "Mentions that coefficient is on standardised / log-odds scale",
+          "passed": true,
+          "evidence": "response.md: 'a coefficient represents the change in the log-odds of the outcome for a one-unit increase in that predictor.' Log-odds scale is explicitly mentioned. NOTE: standardisation is NOT mentioned \u2014 only log-odds. The assertion's 'standardised / log-odds' reads as an OR-condition and log-odds alone is sufficient to pass."
+        },
+        {
+          "text": "Converts to odds ratio using exp()",
+          "passed": true,
+          "evidence": "response.md: 'OR = e^(-1.58) \u2248 0.206'. transcript.md Step 3: 'Converted to odds ratio: exp(-1.58) \u2248 0.206.' Numerically correct."
+        },
+        {
+          "text": "Provides a plain-language interpretation",
+          "passed": true,
+          "evidence": "response.md: 'a roughly 79.4% reduction in odds per unit increase', 'Patients with longer disease duration are substantially less likely to experience the positive outcome.' Clear plain-language summary."
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 0,
+        "stddev": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tokens": {
+        "mean": 0,
+        "stddev": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.4196,
+        "stddev": 0.425,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 0,
+        "stddev": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tokens": {
+        "mean": 0,
+        "stddev": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.58",
+      "time_seconds": "+0.0",
+      "tokens": "+0"
+    }
+  },
+  "notes": [
+    "Eval 4 (coefficient-interpretation) passes 100% for both configurations \u2014 not discriminating. Consider adding assertion for standardisation caveat.",
+    "Eval 2 (csv-upload-imbalanced) is the most discriminating: with_skill 100% vs without_skill 0%.",
+    "All with_skill runs scored 100%. Without_skill mean pass rate: 42%. Delta: +0.58.",
+    "Background subagents lacked Write/Bash permissions; runs executed directly in main session."
+  ]
+}

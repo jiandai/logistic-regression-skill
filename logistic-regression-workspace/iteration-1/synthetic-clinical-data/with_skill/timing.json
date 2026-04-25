@@ -1,0 +1,6 @@
+{
+  "total_tokens": 18510,
+  "duration_ms": 14080,
+  "total_duration_seconds": 14.1,
+  "note": "Background agent aborted (no Bash). Run executed directly in main session — ~0.2s actual execution."
+}

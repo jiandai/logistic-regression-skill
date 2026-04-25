@@ -1,0 +1,70 @@
+{
+  "expectations": [
+    {
+      "text": "Reports AUC-ROC as a number between 0 and 1",
+      "passed": true,
+      "evidence": "transcript.md: 'AUC-ROC: 0.696'. model_report.json: 'auc_roc': 0.696."
+    },
+    {
+      "text": "Reports Brier score",
+      "passed": false,
+      "evidence": "transcript.md explicitly lists 'Missing: Brier score, CV AUC±SD'. model_report.json has no brier_score field. Brier score was never computed."
+    },
+    {
+      "text": "Reports 5-fold CV AUC mean and standard deviation",
+      "passed": false,
+      "evidence": "transcript.md: 'Missing: Brier score, CV AUC±SD'. No cross-validation was performed. model_report.json has no cv_auc fields."
+    },
+    {
+      "text": "Shows confusion matrix with TP/TN/FP/FN values",
+      "passed": true,
+      "evidence": "model_report.json: 'confusion_matrix': [[56,16],[23,25]]. The classification report was printed (per transcript) which includes these values."
+    },
+    {
+      "text": "Shows coefficient table sorted by absolute value",
+      "passed": false,
+      "evidence": "transcript.md: 'Listed coefficient table (not sorted by abs value, no odds ratios computed)'. model_report.json coefficients are in feature-insertion order, not sorted by absolute magnitude."
+    },
+    {
+      "text": "Uses StandardScaler fitted on training data only",
+      "passed": true,
+      "evidence": "transcript.md Step 3: 'Applied StandardScaler to all features.' Script uses fit_transform(X_train) then transform(X_test) — correct procedure. No data leakage on the scaler itself."
+    },
+    {
+      "text": "Uses stratified train/test split",
+      "passed": false,
+      "evidence": "transcript.md Step 2: 'Split 80/20 train/test (non-stratified).' train_test_split was called without stratify=y."
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 4,
+    "total": 7,
+    "pass_rate": 0.4286
+  },
+  "execution_metrics": {
+    "tool_calls": {"Read": 0, "Write": 3, "Bash": 1, "Edit": 0},
+    "total_tool_calls": 4,
+    "total_steps": 5,
+    "errors_encountered": 0,
+    "output_chars": 1200,
+    "transcript_chars": 600
+  },
+  "claims": [
+    {
+      "claim": "Produced a working logistic regression model",
+      "type": "factual",
+      "verified": true,
+      "evidence": "model_report.json has accuracy=0.675 and auc_roc=0.696, indicating a fitted model"
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Uses StandardScaler fitted on training data only",
+        "reason": "This assertion passes for both with_skill and without_skill since both correctly fit on train only. It may not be discriminating. Consider checking for Pipeline usage (which ensures the scaler travels with the model and prevents any future leakage)."
+      }
+    ],
+    "overall": "The 4 assertions that distinguish the runs are well-targeted. The scaler assertion is not discriminating in this case."
+  }
+}

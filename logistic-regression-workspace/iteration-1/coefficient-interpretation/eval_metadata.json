@@ -1,0 +1,11 @@
+{
+  "eval_id": 4,
+  "eval_name": "coefficient-interpretation",
+  "prompt": "The logistic regression coefficient for 'Disease Duration' is -1.58. What does that mean?",
+  "assertions": [
+    "Correctly identifies negative coefficient as decreasing probability of positive class",
+    "Mentions that coefficient is on standardised / log-odds scale",
+    "Converts to odds ratio using exp()",
+    "Provides a plain-language interpretation"
+  ]
+}

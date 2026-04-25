@@ -1,0 +1,63 @@
+{
+  "expectations": [
+    {
+      "text": "Uses thresholds from metrics-guide.md (AUC 0.72 = acceptable range)",
+      "passed": true,
+      "evidence": "transcript.md Step 2: 'Read references/metrics-guide.md — found interpretation threshold table: AUC 0.60–0.75 = Acceptable'. response.md table maps AUC=0.72 to the 0.60–0.75 Acceptable band, exactly matching the guide."
+    },
+    {
+      "text": "Flags Brier > 0.15 as a calibration concern",
+      "passed": true,
+      "evidence": "response.md: 'The skill explicitly flags Brier > 0.15 as a calibration concern.' transcript.md Step 3 also states: 'Brier=0.19 triggers the calibration concern flag (> 0.15).' Threshold is explicitly sourced from the skill."
+    },
+    {
+      "text": "Recommends CalibratedClassifierCV or equivalent",
+      "passed": true,
+      "evidence": "response.md Recommendation 2 provides a full Python code snippet: 'calibrated = CalibratedClassifierCV(pipe, method=isotonic, cv=5)' with guidance on method selection (isotonic vs sigmoid based on n)."
+    },
+    {
+      "text": "Mentions regulatory/clinical context",
+      "passed": true,
+      "evidence": "response.md: 'Bootstrap the AUC 95% CI (n=1000 resamples) for any regulatory submission', 'Consult a biostatistician — the model's role... must be pre-specified under ICH E9(R1) estimand requirements.' Regulatory context is substantive and specific."
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "tool_calls": {"Read": 2, "Write": 3, "Bash": 0, "Edit": 0},
+    "total_tool_calls": 5,
+    "total_steps": 5,
+    "errors_encountered": 0,
+    "output_chars": 2150,
+    "transcript_chars": 820
+  },
+  "claims": [
+    {
+      "claim": "AUC 0.60–0.75 = Acceptable per metrics-guide.md",
+      "type": "factual",
+      "verified": true,
+      "evidence": "metrics-guide.md table row: AUC-ROC Acceptable = 0.60–0.75. Response correctly applies this."
+    },
+    {
+      "claim": "Brier 0.15–0.25 = Acceptable per metrics-guide.md",
+      "type": "factual",
+      "verified": true,
+      "evidence": "metrics-guide.md table row: Brier Score Acceptable = 0.15–0.25. Brier 0.19 is in this band."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "reason": "No assertion checks that the response correctly concludes AUC=0.72 is *below* the Good threshold (0.75). A response calling it 'Good' could still pass the current assertion about it being in 'acceptable range'."
+      },
+      {
+        "reason": "The six-item regulatory checklist (bootstrap CI, Youden index, SAP pre-specification, etc.) that the skill's response contains is unasserted and would discriminate thorough from superficial responses."
+      }
+    ],
+    "overall": "Assertions cleanly capture the key skill-guided behaviors. Eval feedback suggests tightening threshold assertions to include expected conclusions."
+  }
+}

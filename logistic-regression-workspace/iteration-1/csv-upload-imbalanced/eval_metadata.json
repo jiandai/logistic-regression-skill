@@ -1,0 +1,11 @@
+{
+  "eval_id": 2,
+  "eval_name": "csv-upload-imbalanced",
+  "prompt": "I have a CSV with patient data and a column 'adverse_event' that is 1 for 12% of rows. Build a logistic regression classifier.",
+  "assertions": [
+    "Detects class imbalance",
+    "Sets class_weight='balanced' or explicitly justifies not doing so",
+    "Does not present accuracy as the primary metric",
+    "Reports AUC-ROC and F1 as primary metrics"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "eval_id": 1,
+  "eval_name": "synthetic-clinical-data",
+  "prompt": "Build a logistic regression model to predict treatment response. Use synthetic clinical data with features: Age, Baseline SLEDAI, CRP, Anti-dsDNA, C3, Prior Biologics, Disease Duration, Renal Involvement. Show me the full evaluation.",
+  "assertions": [
+    "Reports AUC-ROC as a number between 0 and 1",
+    "Reports Brier score",
+    "Reports 5-fold CV AUC mean and standard deviation",
+    "Shows confusion matrix with TP/TN/FP/FN values",
+    "Shows coefficient table sorted by absolute value",
+    "Uses StandardScaler fitted on training data only",
+    "Uses stratified train/test split"
+  ]
+}

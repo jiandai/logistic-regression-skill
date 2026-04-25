@@ -1,0 +1,50 @@
+{
+  "expectations": [
+    {
+      "text": "Detects class imbalance",
+      "passed": false,
+      "evidence": "transcript.md: 'Class imbalance NOT flagged.' model_report.json: class_weight='None (default)'. The 11.8% positive rate was printed but never flagged as a problem requiring special handling."
+    },
+    {
+      "text": "Sets class_weight='balanced' or explicitly justifies not doing so",
+      "passed": false,
+      "evidence": "transcript.md: 'class_weight=balanced NOT set'. model_report.json: class_weight='None (default)'. No justification provided for this choice despite severe imbalance."
+    },
+    {
+      "text": "Does not present accuracy as the primary metric",
+      "passed": false,
+      "evidence": "transcript.md: 'Computed accuracy (90%) and AUC (0.771). Reported as primary metric.' model_report.json: primary_metric_reported='accuracy'. Accuracy is explicitly the primary reported metric."
+    },
+    {
+      "text": "Reports AUC-ROC and F1 as primary metrics",
+      "passed": false,
+      "evidence": "AUC (0.771) appears in model_report.json but is secondary to accuracy. F1 for the positive class (0.09) appears in model_report.json but only incidentally — it is not labeled or reported as a primary metric."
+    }
+  ],
+  "summary": {
+    "passed": 0,
+    "failed": 4,
+    "total": 4,
+    "pass_rate": 0.0
+  },
+  "execution_metrics": {
+    "tool_calls": {"Read": 0, "Write": 3, "Bash": 1, "Edit": 0},
+    "total_tool_calls": 4,
+    "total_steps": 4,
+    "errors_encountered": 0,
+    "output_chars": 900,
+    "transcript_chars": 450
+  },
+  "claims": [
+    {
+      "claim": "Accuracy of 90% is meaningful",
+      "type": "quality",
+      "verified": false,
+      "evidence": "Confusion matrix [[179,1],[19,1]] shows model predicts negative nearly always. The high accuracy is purely due to class imbalance — the model captures only 1/20 positives."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [],
+    "overall": "Assertions are highly discriminating for this eval. 0/4 pass rate correctly reflects that without-skill completely fails to handle imbalanced data."
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "eval": "csv-upload-imbalanced",
+  "configuration": "without_skill",
+  "class_weight": "None (default)",
+  "primary_metric_reported": "accuracy",
+  "metrics": {
+    "accuracy": 0.9,
+    "auc_roc": 0.7708,
+    "f1_adverse_event": 0.0909
+  },
+  "confusion_matrix": [
+    [
+      179,
+      1
+    ],
+    [
+      19,
+      1
+    ]
+  ],
+  "coefficients": [
+    {
+      "feature": "Age",
+      "coefficient": 0.6847870880130681
+    },
+    {
+      "feature": "Weight_kg",
+      "coefficient": 0.010448513117009159
+    },
+    {
+      "feature": "BMI",
+      "coefficient": -0.0016833917164046086
+    },
+    {
+      "feature": "SBP",
+      "coefficient": 0.1689384173362364
+    },
+    {
+      "feature": "DBP",
+      "coefficient": -0.13185635018431482
+    },
+    {
+      "feature": "Creatinine",
+      "coefficient": 0.3015195429328531
+    },
+    {
+      "feature": "Comorbidity",
+      "coefficient": 0.2980534186125041
+    },
+    {
+      "feature": "Smoker",
+      "coefficient": 0.238026314808287
+    }
+  ]
+}

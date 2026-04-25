@@ -1,0 +1,71 @@
+{
+  "expectations": [
+    {
+      "text": "Reports AUC-ROC as a number between 0 and 1",
+      "passed": true,
+      "evidence": "transcript.md: 'AUC-ROC: 0.626'. model_report.json: 'auc_roc': 0.626."
+    },
+    {
+      "text": "Reports Brier score",
+      "passed": true,
+      "evidence": "transcript.md: 'Brier: 0.241 WARNING: calibration concern'. model_report.json: 'brier_score': 0.241. Explicitly flags the > 0.15 threshold per skill checklist."
+    },
+    {
+      "text": "Reports 5-fold CV AUC mean and standard deviation",
+      "passed": true,
+      "evidence": "transcript.md Step 6: 'CV AUC: 0.693 ± 0.052 WARNING: instability'. model_report.json: cv_auc_mean=0.6929, cv_auc_std=0.0517. StratifiedKFold(n_splits=5) used."
+    },
+    {
+      "text": "Shows confusion matrix with TP/TN/FP/FN values",
+      "passed": true,
+      "evidence": "transcript.md: 'Confusion matrix: [[41 28][20 31]]'. confusion_matrix.png saved. model_report.json: 'confusion_matrix': [[41,28],[20,31]]."
+    },
+    {
+      "text": "Shows coefficient table sorted by absolute value",
+      "passed": true,
+      "evidence": "transcript.md Step 7 shows coefficient table explicitly sorted by abs_coef column (Prior_Biologics -1.024 top, Baseline_SLEDAI -0.033 bottom). model_report.json coefficients array is in same order."
+    },
+    {
+      "text": "Uses StandardScaler fitted on training data only",
+      "passed": true,
+      "evidence": "transcript.md Step 4: 'Fitted scaler on training data ONLY to prevent data leakage.' Pipeline with ColumnTransformer — scaler.fit_transform is called only on X_train inside the Pipeline."
+    },
+    {
+      "text": "Uses stratified train/test split",
+      "passed": true,
+      "evidence": "transcript.md Step 3: 'stratify=y to preserve class balance in both sets.' train_test_split called with stratify=y."
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "tool_calls": {"Read": 1, "Write": 6, "Bash": 1, "Edit": 0},
+    "total_tool_calls": 8,
+    "total_steps": 7,
+    "errors_encountered": 0,
+    "output_chars": 3200,
+    "transcript_chars": 1100
+  },
+  "claims": [
+    {
+      "claim": "Brier > 0.15 calibration concern flagged",
+      "type": "process",
+      "verified": true,
+      "evidence": "model_report.json flags.calibration_concern = true, Brier = 0.241"
+    },
+    {
+      "claim": "CV AUC SD > 0.05 instability flagged",
+      "type": "process",
+      "verified": true,
+      "evidence": "model_report.json flags.instability_concern = true, cv_auc_std = 0.0517"
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [],
+    "overall": "Assertions are well-matched to the skill's checklist. All pass with solid evidence."
+  }
+}

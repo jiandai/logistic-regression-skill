@@ -1,0 +1,79 @@
+{
+  "eval": "csv-upload-imbalanced",
+  "configuration": "with_skill",
+  "class_imbalance_detected": true,
+  "positive_rate": 0.118,
+  "class_weight": "balanced",
+  "primary_metrics": [
+    "auc_roc",
+    "f1_positive_class"
+  ],
+  "accuracy_warning": "misleading for imbalanced classes",
+  "metrics": {
+    "auc_roc": 0.6776,
+    "f1_adverse_event": 0.2708,
+    "pr_auc": 0.3056,
+    "sensitivity": 0.5417,
+    "specificity": 0.6648,
+    "ppv": 0.1806,
+    "brier_score": 0.216,
+    "cv_auc_mean": 0.7092,
+    "cv_auc_std": 0.0532,
+    "accuracy_not_primary": 0.65
+  },
+  "confusion_matrix": [
+    [
+      117,
+      59
+    ],
+    [
+      11,
+      13
+    ]
+  ],
+  "flags": {
+    "calibration_concern": true
+  },
+  "coefficients": [
+    {
+      "feature": "Comorbidity",
+      "log_odds": 0.8164062269535571,
+      "odds_ratio": 2.262354820851246
+    },
+    {
+      "feature": "Smoker",
+      "log_odds": 0.7319048957821113,
+      "odds_ratio": 2.0790371872106443
+    },
+    {
+      "feature": "Age",
+      "log_odds": 0.6191097938918744,
+      "odds_ratio": 1.857273949099892
+    },
+    {
+      "feature": "Creatinine",
+      "log_odds": 0.35642546941648595,
+      "odds_ratio": 1.428215080848478
+    },
+    {
+      "feature": "Weight_kg",
+      "log_odds": 0.13815491837482574,
+      "odds_ratio": 1.1481534065570143
+    },
+    {
+      "feature": "SBP",
+      "log_odds": 0.13774710227933346,
+      "odds_ratio": 1.1476852665817225
+    },
+    {
+      "feature": "DBP",
+      "log_odds": -0.06405857698521156,
+      "odds_ratio": 0.9379500556349832
+    },
+    {
+      "feature": "BMI",
+      "log_odds": -0.06033516590036722,
+      "odds_ratio": 0.9414489391176222
+    }
+  ]
+}

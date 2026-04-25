@@ -1,0 +1,52 @@
+{
+  "eval": "synthetic-clinical-data",
+  "configuration": "without_skill",
+  "metrics": {
+    "accuracy": 0.675,
+    "auc_roc": 0.6956
+  },
+  "confusion_matrix": [
+    [
+      56,
+      16
+    ],
+    [
+      23,
+      25
+    ]
+  ],
+  "coefficients": [
+    {
+      "feature": "Age",
+      "coefficient": -0.2647771520633185
+    },
+    {
+      "feature": "Baseline_SLEDAI",
+      "coefficient": -0.1045372373342249
+    },
+    {
+      "feature": "CRP",
+      "coefficient": -0.3669860806073335
+    },
+    {
+      "feature": "Anti_dsDNA",
+      "coefficient": 0.11952566157540317
+    },
+    {
+      "feature": "C3",
+      "coefficient": 0.2434277706567392
+    },
+    {
+      "feature": "Prior_Biologics",
+      "coefficient": -0.41803424838901226
+    },
+    {
+      "feature": "Disease_Duration",
+      "coefficient": -0.4413923565893796
+    },
+    {
+      "feature": "Renal_Involvement",
+      "coefficient": -0.12085255136821653
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "eval": "synthetic-clinical-data",
+  "configuration": "with_skill",
+  "metrics": {
+    "auc_roc": 0.6257,
+    "brier_score": 0.2408,
+    "cv_auc_mean": 0.6933,
+    "cv_auc_std": 0.0516,
+    "sensitivity": 0.6078,
+    "specificity": 0.5942,
+    "ppv": 0.5254,
+    "npv": 0.6721,
+    "f1_score": 0.5636
+  },
+  "confusion_matrix": [
+    [
+      41,
+      28
+    ],
+    [
+      20,
+      31
+    ]
+  ],
+  "flags": {
+    "calibration_concern": true,
+    "instability_concern": true
+  },
+  "coefficients": [
+    {
+      "feature": "Prior_Biologics",
+      "log_odds": -1.0235230575409233,
+      "odds_ratio": 0.3593267786645601
+    },
+    {
+      "feature": "Disease_Duration",
+      "log_odds": -0.5129930932378491,
+      "odds_ratio": 0.5987009266763492
+    },
+    {
+      "feature": "CRP",
+      "log_odds": -0.43377881207447094,
+      "odds_ratio": 0.6480555817034963
+    },
+    {
+      "feature": "Renal_Involvement",
+      "log_odds": -0.41845339239198465,
+      "odds_ratio": 0.658063799657068
+    },
+    {
+      "feature": "Age",
+      "log_odds": -0.24519091586076153,
+      "odds_ratio": 0.7825551217946665
+    },
+    {
+      "feature": "Anti_dsDNA",
+      "log_odds": 0.12876389102320202,
+      "odds_ratio": 1.137421537023767
+    },
+    {
+      "feature": "C3",
+      "log_odds": 0.12153058334582108,
+      "odds_ratio": 1.1292239008421272
+    },
+    {
+      "feature": "Baseline_SLEDAI",
+      "log_odds": -0.03273453253597931,
+      "odds_ratio": 0.9677954436924655
+    }
+  ]
+}

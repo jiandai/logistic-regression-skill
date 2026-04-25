@@ -1,0 +1,11 @@
+{
+  "eval_id": 3,
+  "eval_name": "model-good-enough-question",
+  "prompt": "My logistic regression gives AUC=0.72 and Brier=0.19. Is this good enough to use in a clinical trial?",
+  "assertions": [
+    "Uses thresholds from metrics-guide.md (AUC 0.72 = acceptable range)",
+    "Flags Brier > 0.15 as a calibration concern",
+    "Recommends CalibratedClassifierCV or equivalent",
+    "Mentions regulatory/clinical context"
+  ]
+}

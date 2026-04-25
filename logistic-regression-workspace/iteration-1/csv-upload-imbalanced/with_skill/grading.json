@@ -1,0 +1,50 @@
+{
+  "expectations": [
+    {
+      "text": "Detects class imbalance",
+      "passed": true,
+      "evidence": "transcript.md: 'Class imbalance detected (11.8% positive < 20%).' Explicitly applies the 20% threshold from SKILL.md. model_report.json: class_imbalance_detected=true, positive_rate=0.118."
+    },
+    {
+      "text": "Sets class_weight='balanced' or explicitly justifies not doing so",
+      "passed": true,
+      "evidence": "transcript.md: 'Setting class_weight=balanced.' model_report.json: class_weight='balanced'. LogisticRegression called with class_weight='balanced'."
+    },
+    {
+      "text": "Does not present accuracy as the primary metric",
+      "passed": true,
+      "evidence": "transcript.md: 'Primary metrics: AUC-ROC and F1. Accuracy is misleading here.' model_report.json: accuracy_warning='misleading for imbalanced classes', primary_metrics=['auc_roc','f1_positive_class']. Accuracy reported with explicit caveat 'NOTE misleading'."
+    },
+    {
+      "text": "Reports AUC-ROC and F1 as primary metrics",
+      "passed": true,
+      "evidence": "transcript.md: 'AUC-ROC (primary): 0.678', 'F1 (primary): 0.271'. model_report.json: primary_metrics=['auc_roc','f1_adverse_event']. Both reported and labeled as primary."
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "tool_calls": {"Read": 1, "Write": 5, "Bash": 1, "Edit": 0},
+    "total_tool_calls": 7,
+    "total_steps": 6,
+    "errors_encountered": 0,
+    "output_chars": 3500,
+    "transcript_chars": 1000
+  },
+  "claims": [
+    {
+      "claim": "Precision-Recall curve was also produced for imbalanced data",
+      "type": "process",
+      "verified": true,
+      "evidence": "precision_recall_curve.png present in outputs. This is not required by the assertions but is good practice per SKILL.md (use F1/PR-AUC when positive class is rare)."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [],
+    "overall": "Assertions cleanly capture the key imbalance-handling behavior. All pass with clear evidence."
+  }
+}

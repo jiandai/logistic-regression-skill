@@ -1,0 +1,50 @@
+{
+  "expectations": [
+    {
+      "text": "Uses thresholds from metrics-guide.md (AUC 0.72 = acceptable range)",
+      "passed": false,
+      "evidence": "response.md states 'acceptable = 0.70–0.80', but metrics-guide.md defines Acceptable as 0.60–0.75. No reference to metrics-guide.md in the transcript. The conclusion (0.72 is acceptable) matches by coincidence, but the cited range does not match the guide's threshold."
+    },
+    {
+      "text": "Flags Brier > 0.15 as a calibration concern",
+      "passed": false,
+      "evidence": "response.md discusses Brier relative to null-model baselines at different prevalences ('At 20% prevalence the null scores ~0.16, so 0.19 is worse than guessing') but never references the 0.15 calibration threshold. The skill's explicit 0.15 cutoff is absent."
+    },
+    {
+      "text": "Recommends CalibratedClassifierCV or equivalent",
+      "passed": false,
+      "evidence": "response.md says 'improve the model (feature engineering, calibration methods)' — generic vague language. CalibratedClassifierCV, isotonic regression, Platt scaling are all absent. No specific calibration tool recommended."
+    },
+    {
+      "text": "Mentions regulatory/clinical context",
+      "passed": true,
+      "evidence": "response.md discusses 'Enrichment/patient selection: AUC >= 0.75–0.80', 'Adaptive randomization: requires tight calibration', and 'consult a biostatistician' — substantive clinical/regulatory framing even without the skill."
+    }
+  ],
+  "summary": {
+    "passed": 1,
+    "failed": 3,
+    "total": 4,
+    "pass_rate": 0.25
+  },
+  "execution_metrics": {
+    "tool_calls": {"Read": 0, "Write": 3, "Bash": 0, "Edit": 0},
+    "total_tool_calls": 3,
+    "total_steps": 4,
+    "errors_encountered": 0,
+    "output_chars": 980,
+    "transcript_chars": 540
+  },
+  "claims": [
+    {
+      "claim": "AUC 0.70-0.80 is acceptable range",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Used general knowledge threshold (0.70-0.80), which differs from metrics-guide.md threshold (0.60-0.75). Wrong range stated, though conclusion about 0.72 happens to be correct."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [],
+    "overall": "Assertions effectively discriminate between with-skill and without-skill responses. The key distinction is use of the guide's specific thresholds vs. general knowledge."
+  }
+}
