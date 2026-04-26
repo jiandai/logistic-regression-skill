@@ -31,38 +31,18 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Node.js (for Claude CLI)
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install Claude CLI
-        run: npm install -g @anthropic-ai/claude-code
-
-      - name: Install skill-creator scripts
-        run: |
-          mkdir -p .claude/skills
-          # skill-creator ships with Claude Code — copy from the CLI's bundled skills
-          # Alternatively pin a specific release zip here
-          cp -r $(npm root -g)/@anthropic-ai/claude-code/skills/skill-creator \
-                .claude/skills/skill-creator || \
-          echo "skill-creator not bundled — skipping trigger evals"
+      - name: Install Python dependencies
+        run: pip install anthropic
 
       - name: Run trigger evals
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          cd .claude/skills/skill-creator
-          python -m scripts.run_loop \
-            --eval-set ../../../logistic-regression/evals/trigger-eval.json \
-            --skill-path ../../../logistic-regression \
-            --model claude-sonnet-4-6 \
-            --max-iterations 3 \
-            --runs-per-query 3 \
-            --verbose \
-            --results-dir ../../../ci-results/trigger \
-            --report none \
-          | tee ../../../ci-results/trigger/results.json
+          python logistic-regression/scripts/run_trigger_eval.py \
+            --eval-set logistic-regression/evals/trigger-eval.json \
+            --skill-path logistic-regression \
+            --model claude-haiku-4-5-20251001 \
+            --results-dir ci-results/trigger
 
       - name: Check pass rate
         run: |
