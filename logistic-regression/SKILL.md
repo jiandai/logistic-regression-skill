@@ -54,7 +54,7 @@ print(df.isnull().sum())              # check missingness
 ```
 
 **Handle before modelling:**
-- Drop or impute columns with > 30% missing values.
+- Drop or impute columns with > 35% missing values.
 - Encode categorical features with `pd.get_dummies(drop_first=True)`.
 - Do NOT impute the target column — drop those rows.
 
