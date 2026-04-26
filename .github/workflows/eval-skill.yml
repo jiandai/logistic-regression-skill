@@ -1,0 +1,199 @@
+name: Evaluate Skill
+
+on:
+  push:
+    paths:
+      - 'logistic-regression/SKILL.md'
+      - 'logistic-regression/references/**'
+      - 'logistic-regression/scripts/**'
+      - 'logistic-regression/evals/**'
+  pull_request:
+    paths:
+      - 'logistic-regression/SKILL.md'
+      - 'logistic-regression/references/**'
+      - 'logistic-regression/scripts/**'
+      - 'logistic-regression/evals/**'
+  workflow_dispatch:        # allow manual trigger from GitHub UI
+
+jobs:
+
+  # ── Job 1: Trigger evals (fast, ~2 min) ───────────────────────────────────
+  trigger-evals:
+    name: Trigger Evals
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout skill repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Node.js (for Claude CLI)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Claude CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Install skill-creator scripts
+        run: |
+          mkdir -p .claude/skills
+          # skill-creator ships with Claude Code — copy from the CLI's bundled skills
+          # Alternatively pin a specific release zip here
+          cp -r $(npm root -g)/@anthropic-ai/claude-code/skills/skill-creator \
+                .claude/skills/skill-creator || \
+          echo "skill-creator not bundled — skipping trigger evals"
+
+      - name: Run trigger evals
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          cd .claude/skills/skill-creator
+          python -m scripts.run_loop \
+            --eval-set ../../../logistic-regression/evals/trigger-eval.json \
+            --skill-path ../../../logistic-regression \
+            --model claude-sonnet-4-6 \
+            --max-iterations 3 \
+            --runs-per-query 3 \
+            --verbose \
+            --results-dir ../../../ci-results/trigger \
+            --report none \
+          | tee ../../../ci-results/trigger/results.json
+
+      - name: Check pass rate
+        run: |
+          python3 - <<'EOF'
+          import json, sys
+          with open("ci-results/trigger/results.json") as f:
+              r = json.load(f)
+          score = r["best_score"]          # e.g. "7/7"
+          passed, total = map(int, score.split("/"))
+          rate = passed / total
+          print(f"Trigger eval pass rate: {passed}/{total} = {rate:.0%}")
+          if rate < 0.80:
+              print(f"FAIL: pass rate {rate:.0%} below 80% threshold")
+              sys.exit(1)
+          print("PASS")
+          EOF
+
+      - name: Upload trigger eval results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trigger-eval-results
+          path: ci-results/trigger/
+
+  # ── Job 2: Execution evals (slower, ~10 min, runs on push to main only) ───
+  execution-evals:
+    name: Execution Evals
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout skill repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: pip install scikit-learn pandas numpy matplotlib
+
+      - name: Install Node.js and Claude CLI
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - run: npm install -g @anthropic-ai/claude-code
+
+      - name: Run execution evals via Claude Code
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          # Claude Code non-interactive: pass the eval task as a prompt
+          claude -p "
+            Test the skill at ./logistic-regression using the execution evals
+            at ./logistic-regression/evals/evals.json.
+            Run each eval with and without the skill.
+            Write all results to ./ci-results/execution/.
+            At the end, write a summary JSON to ./ci-results/execution/summary.json
+            with keys: passed, failed, total, pass_rate.
+          " \
+          --output-format stream-json \
+          --verbose 2>&1 | tee ci-results/execution/claude-log.txt
+
+      - name: Check execution eval pass rate
+        run: |
+          python3 - <<'EOF'
+          import json, sys
+          with open("ci-results/execution/summary.json") as f:
+              r = json.load(f)
+          rate = r["pass_rate"]
+          print(f"Execution eval pass rate: {r['passed']}/{r['total']} = {rate:.0%}")
+          if rate < 0.75:
+              print(f"FAIL: pass rate {rate:.0%} below 75% threshold")
+              sys.exit(1)
+          print("PASS")
+          EOF
+
+      - name: Upload execution eval results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: execution-eval-results
+          path: ci-results/execution/
+
+  # ── Job 3: Validate skill structure (no API key needed) ───────────────────
+  validate-structure:
+    name: Validate Skill Structure
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check required files exist
+        run: |
+          python3 - <<'EOF'
+          import sys, os, json
+
+          required = [
+              "logistic-regression/SKILL.md",
+              "logistic-regression/references/metrics-guide.md",
+              "logistic-regression/scripts/run_pipeline.py",
+              "logistic-regression/evals/evals.json",
+              "logistic-regression/evals/trigger-eval.json",
+          ]
+          missing = [f for f in required if not os.path.exists(f)]
+          if missing:
+              print("Missing required files:")
+              for f in missing: print(f"  {f}")
+              sys.exit(1)
+
+          # Validate evals.json schema
+          with open("logistic-regression/evals/evals.json") as f:
+              evals = json.load(f)
+          for e in evals:
+              assert "id" in e, f"Eval missing 'id': {e}"
+              assert "prompt" in e, f"Eval missing 'prompt': {e}"
+              assert "expectations" in e, f"Eval missing 'expectations': {e}"
+
+          # Validate trigger-eval.json schema
+          with open("logistic-regression/evals/trigger-eval.json") as f:
+              tevs = json.load(f)
+          for t in tevs:
+              assert "query" in t, f"Trigger eval missing 'query': {t}"
+              assert "should_trigger" in t, f"Missing 'should_trigger': {t}"
+
+          # Check SKILL.md has required frontmatter fields
+          skill_md = open("logistic-regression/SKILL.md").read()
+          assert "name:" in skill_md, "SKILL.md missing 'name:' in frontmatter"
+          assert "description:" in skill_md, "SKILL.md missing 'description:' in frontmatter"
+
+          print("All structural checks passed.")
+          EOF
