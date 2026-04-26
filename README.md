@@ -9,7 +9,7 @@ When invoked, this skill guides Claude through a complete seven-step binary clas
 1. **Understand the task** — clarify the target column, data source, class balance, and evaluation priority
 2. **Load and explore data** — validate inputs, inspect distributions, identify missing values
 3. **Split data** — stratified train/test split (80/20 for n > 500, 70/30 otherwise) to prevent leakage
-4. **Preprocess** — `StandardScaler` on continuous features (fit on train only), one-hot encoding for categoricals
+4. **Preprocess** — categorical features are one-hot encoded with `pd.get_dummies` before splitting, then numeric columns are scaled in the modeling pipeline
 5. **Train the model** — `LogisticRegression` in a `Pipeline` with automatic class imbalance detection
 6. **Evaluate** — full diagnostic metrics suite with 5-fold cross-validation
 7. **Interpret coefficients** — log-odds explanation and conversion to odds ratios
