@@ -1,15 +1,21 @@
 ---
 name: logistic-regression
 description: >
-  This is the skill for logistic regression and binary classification. Invoke it
-  the moment a user: says "logistic regression" or "logreg" or "binary classifier";
-  has a dataset where the target column has exactly two values (yes/no, 0/1,
-  churned/not churned, responded/not) and wants a model; asks to predict a binary
-  outcome (hospitalization, churn, fraud, clinical response, default); mentions AUC,
-  Brier score, sensitivity, or specificity in a classification context; or needs to
-  handle class imbalance in a two-class prediction problem. If the user wants to
-  classify observations into one of two groups, this skill applies. Do not invoke
-  for linear regression, multiclass classification, or time-series forecasting.
+  Use this skill for any logistic regression or binary classification task.
+  Invoke when the user: mentions "logistic regression", "logreg", "binary
+  classifier", or "binary classification"; wants to classify observations into
+  exactly two groups or categories (yes/no, 0/1, churned/not, responded/not,
+  hospitalized/not, positive/negative); wants to predict a binary outcome or
+  probability (disease risk, treatment response, fraud, churn, default,
+  hospitalization, clinical response); asks to train or fit a classifier on
+  labeled data with a binary target column; wants to evaluate a model using AUC,
+  ROC curve, Brier score, sensitivity, specificity, F1, or confusion matrix in
+  a two-class context; asks to interpret logistic regression coefficients, signs,
+  or odds ratios; mentions class imbalance in a two-class prediction problem;
+  or asks whether a binary classifier's metrics are good enough for production
+  or clinical use. Do not invoke for linear regression (continuous target),
+  multiclass classification (3 or more classes), clustering, or time-series
+  forecasting.
 compatibility:
   python: ">=3.9"
   packages: [scikit-learn, pandas, numpy, matplotlib]
