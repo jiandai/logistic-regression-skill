@@ -1,0 +1,65 @@
+name: Validate Skill Structure
+
+on:
+  push:
+    paths:
+      - 'logistic-regression/SKILL.md'
+      - 'logistic-regression/references/**'
+      - 'logistic-regression/scripts/**'
+      - 'logistic-regression/evals/**'
+  pull_request:
+    paths:
+      - 'logistic-regression/SKILL.md'
+      - 'logistic-regression/references/**'
+      - 'logistic-regression/scripts/**'
+      - 'logistic-regression/evals/**'
+  workflow_dispatch:
+
+jobs:
+  validate-structure:
+    name: Validate Skill Structure
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check required files exist
+        run: |
+          python3 - <<'EOF'
+          import sys, os, json
+
+          required = [
+              "logistic-regression/SKILL.md",
+              "logistic-regression/references/metrics-guide.md",
+              "logistic-regression/scripts/run_pipeline.py",
+              "logistic-regression/evals/evals.json",
+              "logistic-regression/evals/trigger-eval.json",
+          ]
+          missing = [f for f in required if not os.path.exists(f)]
+          if missing:
+              print("Missing required files:")
+              for f in missing: print(f"  {f}")
+              sys.exit(1)
+
+          # Validate evals.json schema
+          with open("logistic-regression/evals/evals.json") as f:
+              evals = json.load(f)
+          for e in evals:
+              assert "id" in e,           f"Eval missing 'id': {e}"
+              assert "prompt" in e,       f"Eval missing 'prompt': {e}"
+              assert "expectations" in e, f"Eval missing 'expectations': {e}"
+
+          # Validate trigger-eval.json schema
+          with open("logistic-regression/evals/trigger-eval.json") as f:
+              tevs = json.load(f)
+          for t in tevs:
+              assert "query" in t,          f"Trigger eval missing 'query': {t}"
+              assert "should_trigger" in t, f"Trigger eval missing 'should_trigger': {t}"
+
+          # Check SKILL.md has required frontmatter fields
+          skill_md = open("logistic-regression/SKILL.md").read()
+          assert "name:"        in skill_md, "SKILL.md missing 'name:' in frontmatter"
+          assert "description:" in skill_md, "SKILL.md missing 'description:' in frontmatter"
+
+          print("All structural checks passed.")
+          EOF
