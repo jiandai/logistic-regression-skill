@@ -1,0 +1,82 @@
+[
+  {
+    "query": "build a logistic regression model",
+    "should_trigger": true
+  },
+  {
+    "query": "train a binary classifier on this CSV",
+    "should_trigger": true
+  },
+  {
+    "query": "predict treatment response probability",
+    "should_trigger": true
+  },
+  {
+    "query": "classify patients into two groups",
+    "should_trigger": true
+  },
+  {
+    "query": "my patient dataset has a 'hospitalized' column (yes/no) — can you predict hospitalization risk using age, BMI, and comorbidities?",
+    "should_trigger": true
+  },
+  {
+    "query": "got a CSV with 2000 rows and a binary 'churned' column. build me a classifier, handle the 8% churn rate properly",
+    "should_trigger": true
+  },
+  {
+    "query": "running a clinical trial and need to predict which patients are likely to respond. 80% non-responders, 20% responders — what should I watch out for?",
+    "should_trigger": true
+  },
+  {
+    "query": "the logistic regression coefficient for 'smoking_status' is 1.23 on the standardised scale — how do I interpret that?",
+    "should_trigger": true
+  },
+  {
+    "query": "fit a classifier on my training data then evaluate with ROC curve, confusion matrix, and F1. target column is 'adverse_event'",
+    "should_trigger": true
+  },
+  {
+    "query": "my logreg gives AUC=0.81 and Brier=0.12. is that good enough for a clinical decision support tool?",
+    "should_trigger": true
+  },
+  {
+    "query": "write me a haiku about pandas",
+    "should_trigger": false
+  },
+  {
+    "query": "summarize this PDF",
+    "should_trigger": false
+  },
+  {
+    "query": "create a bar chart from this CSV",
+    "should_trigger": false
+  },
+  {
+    "query": "predict house prices from square footage and number of bedrooms — straightforward regression",
+    "should_trigger": false
+  },
+  {
+    "query": "cluster these 5000 customers into segments based on purchase frequency and spend. no labels",
+    "should_trigger": false
+  },
+  {
+    "query": "classify these support tickets into 5 categories: billing, technical, shipping, returns, and general",
+    "should_trigger": false
+  },
+  {
+    "query": "build a random forest on my tabular dataset and tune the hyperparameters with grid search",
+    "should_trigger": false
+  },
+  {
+    "query": "run a linear regression to see how marketing spend affects monthly revenue",
+    "should_trigger": false
+  },
+  {
+    "query": "explain the difference between L1 and L2 regularization in plain English",
+    "should_trigger": false
+  },
+  {
+    "query": "i need to forecast monthly sales for the next 12 months using historical data",
+    "should_trigger": false
+  }
+]
