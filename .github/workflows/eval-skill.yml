@@ -42,16 +42,16 @@ jobs:
       - name: Install skill-creator scripts
         run: |
           mkdir -p .claude/skills
-          # skill-creator ships with Claude Code — copy from the CLI's bundled skills
-          # Alternatively pin a specific release zip here
-          cp -r $(npm root -g)/@anthropic-ai/claude-code/skills/skill-creator \
-                .claude/skills/skill-creator || \
-          echo "skill-creator not bundled — skipping trigger evals"
+          git clone --depth 1 --filter=blob:none --sparse \
+            https://github.com/anthropics/skills.git /tmp/anthropic-skills
+          git -C /tmp/anthropic-skills sparse-checkout set skills/skill-creator
+          cp -r /tmp/anthropic-skills/skills/skill-creator .claude/skills/skill-creator
 
       - name: Run trigger evals
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
+          mkdir -p ci-results/trigger
           cd .claude/skills/skill-creator
           python -m scripts.run_loop \
             --eval-set ../../../logistic-regression/evals/trigger-eval.json \
