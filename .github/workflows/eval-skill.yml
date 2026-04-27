@@ -31,12 +31,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Python dependencies
-        run: pip install anthropic
-
       - name: Run trigger evals
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           python logistic-regression/scripts/run_trigger_eval.py \
             --eval-set logistic-regression/evals/trigger-eval.json \

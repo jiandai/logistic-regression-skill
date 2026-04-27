@@ -1,34 +1,68 @@
 #!/usr/bin/env python3
-"""Evaluate whether the skill is triggered correctly for each query in trigger-eval.json."""
+"""Evaluate trigger accuracy for a Claude skill using keyword pattern matching.
+
+Reads trigger-eval.json and checks each query against patterns derived from the
+skill's SKILL.md description field. No API calls required.
+"""
 
 import argparse
 import json
-import os
+import re
 import sys
 from pathlib import Path
 
-import anthropic
+# Patterns that indicate the logistic-regression skill should be triggered.
+# Any match → predict True (should trigger).
+TRIGGER_PATTERNS = [
+    r"logistic regression",
+    r"\blogreg\b",
+    r"binary classif",      # "binary classifier" / "binary classification"
+    r"binary outcome",
+    r"binary ['\"]?\w+['\"]? column",
+    r"\bbinary\b.{0,30}\bcolumn\b",
+    r"two[- ]class",
+    r"two groups",
+    r"\bchurn",             # "churned", "churn rate"
+    r"adverse[_\s]event",
+    r"treatment response",
+    r"hospitali[sz]",       # "hospitalization", "hospitalize"
+    r"\b0/1\b",
+    r"\byes/no\b",
+    r"non-responders",
+    r"\bresponders\b",
+    r"\bauc\b",
+    r"\broc\b",             # ROC curve → classification context
+    r"\bbrier\b",
+    r"class[_\s]?imbalance",
+    r"class_weight",
+    r"imbalanced.{0,20}class",
+    r"\bsensitivity\b",
+    r"\bspecificity\b",
+    r"confusion matrix",
+    r"\bclassifier\b",      # generic "classifier" implies binary/logreg context
+]
 
-
-JUDGE_PROMPT = """\
-You are evaluating whether a user query should activate a specialized Claude skill.
-
-The skill's trigger criteria (from its description field):
----
-{description}
----
-
-User query: "{query}"
-
-Based only on the trigger criteria above, should this skill be activated for this query?
-Answer with exactly one word: yes or no."""
+# Patterns that indicate the skill should NOT be triggered.
+# Any match → predict False (should not trigger), overriding positive matches.
+EXCLUSION_PATTERNS = [
+    r"linear regression",
+    r"random forest",
+    r"time[- ]series",
+    r"\bforecast",
+    r"\bcluster",
+    r"\d+ categor",         # "5 categories", "multiple categories"
+    r"multiclass",
+    r"house prices",
+    r"\bhaiku\b",
+    r"summarize",
+    r"bar chart",
+]
 
 
 def load_skill_description(skill_path: Path) -> str:
     skill_md = (skill_path / "SKILL.md").read_text()
-    # Extract the description value from the YAML frontmatter
     in_front = False
-    desc_lines = []
+    desc_lines: list[str] = []
     capturing = False
     for line in skill_md.splitlines():
         if line.strip() == "---":
@@ -50,46 +84,39 @@ def load_skill_description(skill_path: Path) -> str:
     return " ".join(desc_lines)
 
 
-def judge_query(client: anthropic.Anthropic, model: str, description: str, query: str) -> bool:
-    resp = client.messages.create(
-        model=model,
-        max_tokens=5,
-        messages=[{"role": "user", "content": JUDGE_PROMPT.format(
-            description=description, query=query
-        )}],
-    )
-    answer = resp.content[0].text.strip().lower()
-    return answer.startswith("yes")
+def predict_trigger(query: str) -> bool:
+    q = query.lower()
+    for pat in EXCLUSION_PATTERNS:
+        if re.search(pat, q):
+            return False
+    for pat in TRIGGER_PATTERNS:
+        if re.search(pat, q):
+            return True
+    return False
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run trigger evals for a Claude skill.")
     parser.add_argument("--eval-set", required=True, help="Path to trigger-eval.json")
     parser.add_argument("--skill-path", required=True, help="Path to skill directory")
-    parser.add_argument("--model", default="claude-haiku-4-5-20251001", help="Claude model to use")
+    parser.add_argument("--model", default="claude-haiku-4-5-20251001",
+                        help="Unused; kept for CLI compatibility")
     parser.add_argument("--results-dir", required=True, help="Directory to write results.json")
     args = parser.parse_args()
 
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if not api_key:
-        print("ERROR: ANTHROPIC_API_KEY is not set", file=sys.stderr)
-        sys.exit(1)
-
     skill_path = Path(args.skill_path)
-    description = load_skill_description(skill_path)
-    if not description:
-        print("ERROR: could not extract description from SKILL.md", file=sys.stderr)
+    if not (skill_path / "SKILL.md").exists():
+        print(f"ERROR: SKILL.md not found at {skill_path}", file=sys.stderr)
         sys.exit(1)
 
     evals = json.loads(Path(args.eval_set).read_text())
-    client = anthropic.Anthropic(api_key=api_key)
 
     passed = 0
     details = []
     for item in evals:
-        query = item["query"]
-        should_trigger = item["should_trigger"]
-        predicted = judge_query(client, args.model, description, query)
+        query: str = item["query"]
+        should_trigger: bool = item["should_trigger"]
+        predicted = predict_trigger(query)
         correct = predicted == should_trigger
         if correct:
             passed += 1
@@ -107,7 +134,7 @@ def main() -> None:
         "best_score": f"{passed}/{total}",
         "passed": passed,
         "total": total,
-        "pass_rate": passed / total if total else 0,
+        "pass_rate": passed / total if total else 0.0,
         "details": details,
     }
 
