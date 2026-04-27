@@ -51,6 +51,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
+          mkdir -p ci-results/trigger
           cd .claude/skills/skill-creator
           python -m scripts.run_loop \
             --eval-set ../../../logistic-regression/evals/trigger-eval.json \
